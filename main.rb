@@ -4,67 +4,41 @@
   #   /^5[1-5][0-9]{14}$/         => :mc,
   #    => Visa
   # }
-module CreditCards
-  class Factory
-    def initialize(cc_number)
-      @cc_number = cc_number
-    end
+require 'ostruct'
+require 'pry'
 
-    def call
-      visa = Visa.new(cc_number)
-      if visa.plausible?
-        visa
-      else
-        Unknown.new(cc_number)
-      end
-    end
+class CreditCard
+  ALL = [
+    OpenStruct.new(name: "Visa", reg_exp: /^4[0-9]{12}(?:[0-9]{3})?$/)
+  ]
+  UNKNOWN = OpenStruct.new(name: "Unknown")
 
-    private
-    attr_reader :cc_number
+  def initialize(cc_number)
+    @cc_number = cc_number.to_s
   end
 
-  # TODO: composition over inheritance
-  class AbstractCreditCard
-    def initialize(cc_number)
-      @cc_number = cc_number.to_s
-    end
-
-    def plausible?
-      !!(self.class.reg_exp =~ cc_number)
-    end
-
-    def name
-      self.class.name.sub(/\A\w+::/, '')
-    end
-
-    private
-    attr_reader :cc_number
-
-    def self.reg_exp
-      fail NotImplementedError
-    end
+  def plausible?
+    !!(provider.reg_exp =~ cc_number)
   end
 
-  class Unknown < AbstractCreditCard
-    def plausible?
-      false
-    end
-    def name
-      'Unknown'
-    end
+  def name
+    provider.name
   end
 
-  class Visa < AbstractCreditCard
-    def self.reg_exp
-      /^4[0-9]{12}(?:[0-9]{3})?$/
-    end
+  private
+  attr_reader :cc_number
+
+  def provider
+    ALL.detect { |p| cc_number =~ p[:reg_exp] } || UNKNOWN
   end
 end
 
+RSpec.configure do |config|
+  config.expect_with :rspec
+end
 
-
-RSpec.describe CreditCards::Factory do
-  subject { described_class.new(cc_number).call }
+RSpec.describe CreditCard do
+  subject { described_class.new(cc_number) }
   let(:visa_number)        { 4111111111111111 }
   let(:implausible_number) { 411111111111111 }
 
