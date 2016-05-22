@@ -1,7 +1,9 @@
 class CreditCard
   ALL = [
-    OpenStruct.new(type: "Visa", reg_exp: /^4[0-9]{12}(?:[0-9]{3})?$/),
-    OpenStruct.new(type: "Master Card", reg_exp: /^5[1-5][0-9]{14}$/)
+    OpenStruct.new(type: "Visa",        reg_exp: /^4[0-9]{12}(?:[0-9]{3})?$/),
+    OpenStruct.new(type: "Master Card", reg_exp: /^5[1-5][0-9]{14}$/),
+    OpenStruct.new(type: "Discover",    reg_exp: /^6011[0-9]{12}$/),
+    OpenStruct.new(type: "Amex",        reg_exp: /^3[47][0-9]{13}$/),
   ]
   UNKNOWN = OpenStruct.new(type: "Unknown")
 

@@ -50,11 +50,11 @@ RSpec.describe CreditCard do
       [4111111111111111,      'Visa',         true],
       [41111111111111,        'Unknown',      false],
       [4012888888881881,      'Visa',         true],
-      # [378282246310005,       'Unknown',      true],
-      # [6011111111111117,      'Unknown',      true],
+      [378282246310005,       'Amex',         true],
+      [6011111111111117,      'Discover',     true],
       [5105105105105100,      'Master Card',  true],
       ['5105 1051 0510 5106', 'Master Card',  false],
-      # [9111111111111111,      'Unknown',      false]
+      [9111111111111111,      'Unknown',      false]
     ].each do |(number, type, valid)|
       context "the credit card number #{number}" do
         subject { described_class.new(number) }
