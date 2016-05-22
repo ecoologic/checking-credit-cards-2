@@ -1,58 +1,82 @@
+require 'luhn'
 require 'ostruct'
 require 'pry'
 
 class CreditCard
   ALL = [
-    OpenStruct.new(name: "Visa", reg_exp: /^4[0-9]{12}(?:[0-9]{3})?$/),
-    OpenStruct.new(name: "Master Card", reg_exp: /^5[1-5][0-9]{14}$/)
+    OpenStruct.new(type: "Visa", reg_exp: /^4[0-9]{12}(?:[0-9]{3})?$/),
+    OpenStruct.new(type: "Master Card", reg_exp: /^5[1-5][0-9]{14}$/)
   ]
-  UNKNOWN = OpenStruct.new(name: "Unknown")
+  UNKNOWN = OpenStruct.new(type: "Unknown")
 
-  def initialize(cc_number)
-    @cc_number = cc_number.to_s
+  def initialize(number)
+    @number = number.to_s.gsub ' ', ''
   end
 
   def plausible?
-    !!(provider.reg_exp =~ cc_number)
+    !!(provider.reg_exp =~ number)
   end
 
-  def name
-    provider.name
+  def valid?
+    Luhn.valid?(number)
+  end
+
+  def type
+    provider.type
   end
 
   private
-  attr_reader :cc_number
+
+  attr_reader :number
 
   def provider
-    ALL.detect { |p| cc_number =~ p.reg_exp } || UNKNOWN
+    ALL.detect { |p| number =~ p.reg_exp } || UNKNOWN
   end
 end
 
 RSpec.configure { |c| c.expect_with :rspec }
 RSpec.describe CreditCard do
-  subject { described_class.new(cc_number) }
-  let(:visa_number)        { 4111111111111111 }
-  let(:master_card_number) { 5105105105105106 }
-  let(:implausible_number) { 411111111111111 }
+  subject { described_class.new(number) }
 
-  context "a plausible Visa number" do
-    let(:cc_number) { visa_number }
+  let(:visa_number)                { 4111111111111111 }
+  let(:master_card_number)         { 5105105105105100 }
+  let(:implausible_number)         { 411111111111111 }
+
+  context "a valid Visa number" do
+    let(:number) { visa_number }
 
     it { expect(subject.plausible?).to eq(true)  }
-    it { expect(subject.name).to eq('Visa') }
+    it { expect(subject.type).to eq('Visa') }
   end
 
-  context "a plausible Master Card number" do
-    let(:cc_number) { master_card_number }
+  context "an invalid Visa number" do
+    let(:number) { visa_number + 1 }
 
     it { expect(subject.plausible?).to eq(true)  }
-    it { expect(subject.name).to eq('Master Card') }
+    it { expect(subject.valid?).to eq(false)  }
+    it { expect(subject.type).to eq('Visa') }
+  end
+
+  context "a valid Master Card number" do
+    let(:number) { master_card_number }
+
+    it { expect(subject.plausible?).to eq(true)  }
+    it { expect(subject.valid?).to eq(true)  }
+    it { expect(subject.type).to eq('Master Card') }
+  end
+
+  context "an invalid Master Card number" do
+    let(:number) { master_card_number + 1 }
+
+    it { expect(subject.plausible?).to eq(true)  }
+    it { expect(subject.valid?).to eq(false)  }
+    it { expect(subject.type).to eq('Master Card') }
   end
 
   context "an implausible number" do
-    let(:cc_number) { implausible_number }
+    let(:number) { implausible_number }
 
     it { expect(subject.plausible?).to eq(false)  }
-    it { expect(subject.name).to eq('Unknown') }
+    it { expect(subject.type).to eq('Unknown') }
   end
 end
