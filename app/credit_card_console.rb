@@ -44,8 +44,8 @@ class CreditCardConsole
 
   # "TYPE: NUMBERS (VALIDITY)"
   def display_credit_card(credit_card_number)
-    number = credit_card_number.scan(/.{4}/).join(' ')
     cc = CreditCard.new(credit_card_number)
+    number = cc.number.to_s.scan(/.{4}/).join(' ')
     validity = cc.valid? ? 'VALID' : 'INVALID'
 
     "#{cc.type.upcase}: #{number} (#{validity})"

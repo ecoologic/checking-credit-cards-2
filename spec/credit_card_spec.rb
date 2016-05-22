@@ -44,4 +44,25 @@ RSpec.describe CreditCard do
     it { expect(subject.plausible?).to eq(false)  }
     it { expect(subject.type).to eq('Unknown') }
   end
+
+  context "The exercise test values" do
+    [
+      [4111111111111111,      'Visa',         true],
+      [41111111111111,        'Unknown',      false],
+      [4012888888881881,      'Visa',         true],
+      # [378282246310005,       'Unknown',      true],
+      # [6011111111111117,      'Unknown',      true],
+      [5105105105105100,      'Master Card',  true],
+      ['5105 1051 0510 5106', 'Master Card',  false],
+      # [9111111111111111,      'Unknown',      false]
+    ].each do |(number, type, valid)|
+      context "the credit card number #{number}" do
+        subject { described_class.new(number) }
+        it "is type #{type} and #{'not ' unless valid}valid" do
+          expect(subject.type).to eq type
+          expect(subject.valid?).to eq valid
+        end
+      end
+    end
+  end
 end

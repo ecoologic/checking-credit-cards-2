@@ -5,6 +5,8 @@ class CreditCard
   ]
   UNKNOWN = OpenStruct.new(type: "Unknown")
 
+  attr_reader :number
+
   def initialize(number)
     @number = number.to_s.gsub ' ', ''
   end
@@ -22,8 +24,6 @@ class CreditCard
   end
 
   private
-
-  attr_reader :number
 
   def provider
     ALL.detect { |p| number =~ p.reg_exp } || UNKNOWN
