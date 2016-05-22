@@ -10,7 +10,7 @@ class CreditCard
   attr_reader :number
 
   def initialize(number)
-    @number = number.to_s.gsub ' ', ''
+    @number = number.to_s.gsub(' ', '')
   end
 
   def plausible?
